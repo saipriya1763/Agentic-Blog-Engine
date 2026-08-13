@@ -1,22 +1,30 @@
-from langchain_groq import ChatGroq
-from config.settings import GROQ_API_KEY, MODEL_NAME
+import os
+from groq import Groq
+from dotenv import load_dotenv
 
-llm = ChatGroq(
-    groq_api_key=GROQ_API_KEY,
-    model_name=MODEL_NAME,
-    temperature=0.5
-)
+load_dotenv()
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
-def edit_article(topic: str, draft: str) -> str:
-    """Edits, polishes, and improves the drafted blog post."""
-    prompt = (
-        f"You are a senior editor. Review and polish the following blog post on '{topic}'.\n\n"
-        f"Draft:\n{draft}\n\n"
-        "Tasks:\n"
-        "1. Fix any grammatical or phrasing issues.\n"
-        "2. Make the tone engaging and professional.\n"
-        "3. Add a catchy main title (# Title) and a short 'Key Takeaways' section at the end.\n"
-        "Return the final edited article in Markdown."
+def review_blog_post(draft: str) -> str:
+    """
+    Reviews, polishes, and finalizes the blog post draft for maximum social media impact.
+    """
+    prompt = f"""
+    You are an expert Chief Editor. Review and polish the following blog post draft to make it completely ready for social media publication.
+    
+    Draft:
+    {draft}
+    
+    Instructions:
+    - Ensure the tone is engaging, professional yet catchy.
+    - Verify that the layout includes emojis, clear formatting, headers, and bullet points.
+    - Polish any awkward phrasing while maintaining the core message.
+    """
+
+    response = client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.5
     )
-    response = llm.invoke(prompt)
-    return response.content
+    
+    return response.choices[0].message.content

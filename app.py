@@ -1,45 +1,73 @@
 import streamlit as st
-from main import app  # Imports your compiled LangGraph workflow
+from agents.planner import generate_outline
+from agents.writer import write_blog_post
+from agents.editor import review_blog_post
+import random
 
-# Page Configuration
-st.set_page_config(page_title="Agentic Blog Engine", page_icon="🤖", layout="centered")
+st.set_page_config(page_title="Agentic Blog Engine", layout="wide")
 
-st.title("🤖 Agentic Blog Engine")
-st.markdown("Enter a topic below to let your **Planner**, **Writer**, and **Editor** agents collaborate and generate a published draft.")
+st.title("🚀 Agentic Blog Engine")
+st.write("Generate professional, multi-agent AI blogs tailored for LinkedIn and social media!")
 
-# Input Field
-topic = st.text_input("Blog Topic", placeholder="e.g., The Impact of Quantum Computing on Cybersecurity")
+# --- SIDEBAR CONFIGURATION ---
+st.sidebar.header("Blog Generation Settings")
 
-# Action Button
-if st.button("Generate Article", type="primary"):
-    if not topic.strip():
-        st.warning("Please enter a valid topic!")
+# Enhancement 1: Mode Selector (Manual vs Automatic)
+mode = st.sidebar.radio("Choose Generation Mode:", ["Manual", "Automatic"])
+
+topic = ""
+
+if mode == "Manual":
+    st.sidebar.subheader("Manual Input")
+    topic = st.sidebar.text_input("Enter your custom blog topic:", "Introduction to Agentic Workflows")
+
+else:  # Automatic Mode
+    st.sidebar.subheader("Automatic Discovery")
+    if st.sidebar.button("Discover Trending Topic"):
+        # Enhancement 1: Backend prompt/pool for trending tech topics
+        trending_topics = [
+            "Breakthroughs in Quantum Computing for 2026",
+            "Advanced Multi-Agent Software Engineering Workflows",
+            "Next-Gen Rocket Propulsion and Aerospace Technology",
+            "The Rise of Autonomous AI Agents in Data Science",
+            "Edge AI and Scalable Microservices Architecture"
+        ]
+        selected_topic = random.choice(trending_topics)
+        st.sidebar.success(f"Selected: {selected_topic}")
+        topic = selected_topic
     else:
-        # Animated Status Container
-        status = st.status("🤖 Agents are working on your article...", expanded=True)
+        topic = st.sidebar.text_input("Current Auto-Topic (or click button above):", "Autonomous AI Agents in Data Science")
+
+# Enhancement 2: Style Selector emphasizing Social Media / LinkedIn format
+post_style = st.sidebar.selectbox(
+    "Select Output Format Style:",
+    ["LinkedIn Tech Post (Engaging, Infographic style, Emojis)", "Standard Social Media Thread"]
+)
+
+if st.button("Generate Blog Post 🤖"):
+    if not topic:
+        st.warning("Please provide or generate a topic first!")
+    else:
+        with st.status("Agents at work...", expanded=True) as status:
+            st.write("Planner Agent: Structuring the outline...")
+            outline = generate_outline(topic)
+            
+            st.write("Writer Agent: Drafting content with social media layout...")
+            # Pass style instructions to the writer
+            raw_draft = write_blog_post(topic, outline, style=post_style)
+            
+            st.write("Editor Agent: Polishing tone and layout...")
+            final_blog = review_blog_post(raw_draft)
+            
+            status.update(label="Blog generation complete!", state="complete", expanded=False)
+
+        st.subheader("Generated Blog Output")
+        st.markdown(final_blog)
         
-        with status:
-            st.write("📝 **Planner Agent:** Drafting structured outline...")
-            initial_state = {"topic": topic, "outline": "", "draft": "", "final_post": ""}
-            
-            # Run LangGraph pipeline
-            final_state = app.invoke(initial_state)
-            
-            st.write("✍️ **Writer Agent:** Writing detailed draft...")
-            st.write("🔍 **Editor Agent:** Polishing tone, style, and adding key takeaways...")
-            status.update(label="🎉 Article complete!", state="complete", expanded=False)
-
-        # Output Section
-        st.subheader("📄 Generated Article")
-        st.markdown(final_state["final_post"])
-
-        st.divider()
-
-        # Download Button
-        file_name = f"{topic.lower().replace(' ', '_')[:30]}.md"
+        # Download button for mentor review
         st.download_button(
-            label="📥 Download Article (.md)",
-            data=final_state["final_post"],
-            file_name=file_name,
+            label="Download Blog Post (.md)",
+            data=final_blog,
+            file_name="social_blog_post.md",
             mime="text/markdown"
         )
