@@ -68,7 +68,19 @@ if generate_btn:
         st.warning("⚠️ Please enter a topic in the sidebar to begin generation!")
     else:
         st.success(f"🚀 Starting EZERV Forge in **{mode}** mode for topic: **{topic}**")
-        st.info(f"Target Tone: **{tone}**")
-        # Agent execution logic will trigger here
-else:
-    st.info("👈 Fill out the settings in the left sidebar and click **Generate Content** to start!")
+        
+        # Show a spinner while your agents run
+        with st.spinner("🤖 AI Agents are researching, writing, and editing your post..."):
+            try:
+                # 1. Initialize and run your Crew / Agents
+                # (Replace 'run_crew' with your actual function name or main script call)
+                from main import run_crew  
+                
+                result = run_crew(topic=topic, tone=tone, mode=mode)
+                
+                # 2. Display the generated blog post
+                st.subheader("📄 Generated Blog Post")
+                st.markdown(result)
+                
+            except Exception as e:
+                st.error(f"An error occurred while fetching information: {e}")
