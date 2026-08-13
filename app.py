@@ -34,3 +34,41 @@ with col1:
 with col2:
     st.title("EZERV Forge — AI Content Creation Agent")
     st.caption("🚀 *From ideation to execution — autonomously, with AI agents.*")
+    # --- SIDEBAR CONFIGURATION ---
+st.sidebar.header("⚙️ EZERV Forge Settings")
+
+# 1. Mode Selection (Automatic / Manual)
+mode = st.sidebar.radio(
+    "Choose Generation Mode:",
+    ["Automatic", "Manual"],
+    help="Automatic generates everything instantly. Manual lets you review each step."
+)
+
+# 2. Topic Input
+topic = st.sidebar.text_input(
+    "Enter Content Topic / Keyword:",
+    value="",
+    placeholder="e.g., Future of AI in Software Testing"
+)
+
+# 3. Tone & Style Settings
+tone = st.sidebar.selectbox(
+    "Select Content Tone:",
+    ["Professional", "Conversational", "Technical & Detailed", "Engaging & Creative"]
+)
+
+# 4. Generate Button
+generate_btn = st.sidebar.button("Generate Content with EZERV Forge 🚀", use_container_width=True)
+
+# --- MAIN CONTENT AREA ---
+st.divider()
+
+if generate_btn:
+    if not topic.strip():
+        st.warning("⚠️ Please enter a topic in the sidebar to begin generation!")
+    else:
+        st.success(f"🚀 Starting EZERV Forge in **{mode}** mode for topic: **{topic}**")
+        st.info(f"Target Tone: **{tone}**")
+        # Agent execution logic will trigger here
+else:
+    st.info("👈 Fill out the settings in the left sidebar and click **Generate Content** to start!")
