@@ -1,26 +1,41 @@
 import os
-from groq import Groq
 from dotenv import load_dotenv
+from groq import Groq
 
+# Load environment variables from .env file
 load_dotenv()
-client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 def generate_outline(topic: str) -> str:
     """
-    Generates a structured outline for the given blog topic using Groq.
+    AI Planner Agent: Generates a blog/content outline using the Groq API.
     """
+    api_key = os.getenv("GROQ_API_KEY")
+    
+    if not api_key:
+        raise ValueError("GROQ_API_KEY is missing! Make sure it is set in your .env file or Streamlit Secrets.")
+
+    client = Groq(api_key=api_key)
+
     prompt = f"""
-    You are an expert technical content planner. Create a detailed and engaging blog post outline for the following topic:
-    
+    You are an expert AI content planner and strategist.
+    Create a comprehensive, high-quality content outline for the following topic:
+
     Topic: {topic}
-    
-    Provide the outline with clear section headings and bullet points for what to cover in each section.
+
+    Structure your output as follows:
+    1. 🎯 Catchy Title Options (3 suggestions)
+    2. 📌 Target Audience & Core Value
+    3. 📍 Introduction Hook & Key Takeaways
+    4. 🧩 Main Sections (with sub-points and key details)
+    5. 🏁 Conclusion & Call-to-Action
     """
 
     response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.7
+        messages=[
+            {"role": "system", "content": "You are a professional AI content planning agent."},
+            {"role": "user", "content": prompt}
+        ],
+        model="llama-3.3-70b-versatile"
     )
-    
+
     return response.choices[0].message.content
