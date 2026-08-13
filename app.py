@@ -4,15 +4,31 @@ import streamlit as st
 st.title("EZERV Forge — AI Content Creation Agent")
 st.caption("From ideation to execution — autonomously, with AI agents.")
 
-# --- SIDEBAR CONFIGURATION (Defined ONCE) ---
+# --- SIDEBAR CONFIGURATION (Rendered ONCE) ---
 st.sidebar.header("⚙️ EZERV Forge Settings")
 
-mode = st.sidebar.radio("Choose Generation Mode:", ["Automatic", "Manual"])
-topic = st.sidebar.text_input("Enter Content Topic / Keyword:")
-tone = st.sidebar.selectbox("Select Content Tone:", ["Professional", "Conversational", "Technical"])
+mode = st.sidebar.radio(
+    "Choose Generation Mode:", 
+    ["Automatic", "Manual"],
+    key="mode_radio"
+)
 
-# Unique key added to prevent duplicate button errors
-generate_btn = st.sidebar.button("Generate Content with EZERV Forge 🚀", use_container_width=True, key="main_generate_btn")
+topic = st.sidebar.text_input(
+    "Enter Content Topic / Keyword:",
+    key="topic_input"
+)
+
+tone = st.sidebar.selectbox(
+    "Select Content Tone:", 
+    ["Professional", "Conversational", "Technical"],
+    key="tone_selectbox"
+)
+
+generate_btn = st.sidebar.button(
+    "Generate Content with EZERV Forge 🚀", 
+    use_container_width=True,
+    key="generate_btn"
+)
 
 # --- MAIN CONTENT AREA ---
 st.divider()
@@ -25,7 +41,7 @@ if generate_btn:
         
         with st.spinner("🤖 AI Agents are generating your content..."):
             try:
-                # Import planner inside button execution to avoid circular imports
+                # Import inline to prevent circular dependencies
                 from agents.planner import generate_outline
                 
                 outline = generate_outline(topic)
