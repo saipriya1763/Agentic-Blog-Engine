@@ -1,73 +1,36 @@
+import base64
 import streamlit as st
-from agents.planner import generate_outline
-from agents.writer import write_blog_post
-from agents.editor import review_blog_post
-import random
 
-st.set_page_config(page_title="Agentic Blog Engine", layout="wide")
+# Function to encode image file to base64 for HTML circular framing
+def get_image_base64(file_path):
+    with open(file_path, "rb") as image_file:
+        return base64.b64encode(image_file.read()).decode()
 
-st.title("🚀 Agentic Blog Engine")
-st.write("Generate professional, multi-agent AI blogs tailored for LinkedIn and social media!")
+# --- HEADER & BRANDING ---
+col1, col2 = st.columns([1, 5])
 
-# --- SIDEBAR CONFIGURATION ---
-st.sidebar.header("Blog Generation Settings")
-
-# Enhancement 1: Mode Selector (Manual vs Automatic)
-mode = st.sidebar.radio("Choose Generation Mode:", ["Manual", "Automatic"])
-
-topic = ""
-
-if mode == "Manual":
-    st.sidebar.subheader("Manual Input")
-    topic = st.sidebar.text_input("Enter your custom blog topic:", "Introduction to Agentic Workflows")
-
-else:  # Automatic Mode
-    st.sidebar.subheader("Automatic Discovery")
-    if st.sidebar.button("Discover Trending Topic"):
-        # Enhancement 1: Backend prompt/pool for trending tech topics
-        trending_topics = [
-            "Breakthroughs in Quantum Computing for 2026",
-            "Advanced Multi-Agent Software Engineering Workflows",
-            "Next-Gen Rocket Propulsion and Aerospace Technology",
-            "The Rise of Autonomous AI Agents in Data Science",
-            "Edge AI and Scalable Microservices Architecture"
-        ]
-        selected_topic = random.choice(trending_topics)
-        st.sidebar.success(f"Selected: {selected_topic}")
-        topic = selected_topic
-    else:
-        topic = st.sidebar.text_input("Current Auto-Topic (or click button above):", "Autonomous AI Agents in Data Science")
-
-# Enhancement 2: Style Selector emphasizing Social Media / LinkedIn format
-post_style = st.sidebar.selectbox(
-    "Select Output Format Style:",
-    ["LinkedIn Tech Post (Engaging, Infographic style, Emojis)", "Standard Social Media Thread"]
-)
-
-if st.button("Generate Blog Post 🤖"):
-    if not topic:
-        st.warning("Please provide or generate a topic first!")
-    else:
-        with st.status("Agents at work...", expanded=True) as status:
-            st.write("Planner Agent: Structuring the outline...")
-            outline = generate_outline(topic)
-            
-            st.write("Writer Agent: Drafting content with social media layout...")
-            # Pass style instructions to the writer
-            raw_draft = write_blog_post(topic, outline, style=post_style)
-            
-            st.write("Editor Agent: Polishing tone and layout...")
-            final_blog = review_blog_post(raw_draft)
-            
-            status.update(label="Blog generation complete!", state="complete", expanded=False)
-
-        st.subheader("Generated Blog Output")
-        st.markdown(final_blog)
-        
-        # Download button for mentor review
-        st.download_button(
-            label="Download Blog Post (.md)",
-            data=final_blog,
-            file_name="social_blog_post.md",
-            mime="text/markdown"
+with col1:
+    try:
+        img_b64 = get_image_base64("logo.png")
+        # Renders the logo inside a circular frame
+        st.markdown(
+            f"""
+            <div style="
+                width: 90px;
+                height: 90px;
+                border-radius: 50%;
+                overflow: hidden;
+                border: 2px solid #FF4B4B;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            ">
+                <img src="data:image/png;base64,{img_b64}" style="width: 100%; height: 100%; object-fit: cover;">
+            </div>
+            """,
+            unsafe_allow_html=True
         )
+    except Exception:
+        st.warning("Please ensure 'logo.png' is saved in your project folder.")
+
+with col2:
+    st.title("EZERV Forge — AI Content Creation Agent")
+    st.caption("🚀 *From ideation to execution — autonomously, with AI agents.*")
