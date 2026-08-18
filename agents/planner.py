@@ -35,7 +35,7 @@ Structure your output as follows:
             {"role": "system", "content": "You are a professional AI content planning agent."},
             {"role": "user", "content": prompt}
         ],
-        model="llama-3.1-8b-instant"
+        model="openai/gpt-oss-20b"
     )
 
     return response.choices[0].message.content
